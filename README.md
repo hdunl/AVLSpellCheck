@@ -1,76 +1,55 @@
-# AVL Spell Checker
+# Spell Checker with Various Similarity Algorithms
 
-A Java-based spell checker with various similarity algorithms for word suggestions.
-
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Features](#features)
-- [Getting Started](#getting-started)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Customization](#customization)
-
-## Introduction
-
-The Spell Checker project is a Java-based spell-checking tool that provides word suggestions for misspelled words. It uses several similarity algorithms, including Levenshtein distance, Metaphone, Soundex, and Jaro-Winkler similarity, to find suggested corrections for misspelled words.
+This is a Java-based spell-checker application that uses multiple similarity algorithms to suggest corrections for misspelled words. It provides an easy-to-use graphical user interface (GUI) for checking the spelling of words.
 
 ## Features
 
-- Spell checking with multiple similarity algorithms.
-- Suggestions sorted by similarity.
-- Customizable maximum Levenshtein distance.
-- Detailed statistics on dictionary population and search time.
-- Easily customizable with additional similarity algorithms.
+- Check the spelling of words using various similarity algorithms.
+- Suggest corrections for misspelled words based on Levenshtein distance, Metaphone, Soundex, and Jaro-Winkler similarity.
+- Adjustable parameters for maximum Levenshtein distance and the number of suggestions to display.
+- Detailed statistics on dictionary population time and search complexity.
+- Utilizes an efficient AVL Tree data structure for dictionary storage.
+- Supports loading custom dictionaries.
 
-## Getting Started
+## Prerequisites
 
-To get started with the Spell Checker project, follow these steps:
+Before running the Spell Checker GUI, ensure you have the following prerequisites installed on your system:
 
-1. **Prerequisites**: Ensure you have the following prerequisites installed on your system:
+- Java Development Kit (JDK) 8 or later
+- JavaFX (included with JDK 8, separate download for later versions)
+- Apache Commons Codec Library 1.16.0
+- Apache Commons Lang3 Library 3.13.0
+- Apache Commons Text Library 1.10.0
 
-   - Java Development Kit (JDK) installed (Java 8 or higher).
-   - JavaFX library installed. (JavaFX is included in Oracle JDK 8 and OpenJFX 11 and later.)
-   - Apache Commons Text library installed. You can download it from [here](https://commons.apache.org/proper/commons-text/download_text.cgi).
-   - Apache Commons Codec library installed. You can download it from [here](https://commons.apache.org/proper/commons-codec/download_codec.cgi).
+You can find the required Apache libraries in the repository under the following filenames:
 
-2. **Clone Repository**: Clone this repository to your local machine.
+- `commons-codec-1.16.0.jar`
+- `commons-lang3-3.13.0.jar`
+- `commons-text-1.10.0.jar`
 
-3. **Compile Java Files**: Compile the Java files in the project directory.
-
-4. **Run Spell Checker GUI**: Run the Spell Checker GUI
-
-
+Make sure to include these JAR files in your project's classpath.
 
 ## Usage
 
-To use the spell checker, follow these steps:
+1. Launch the Spell Checker GUI.
+2. Enter a word in the "Enter a word" text field.
+3. Adjust the "Max Distance" slider to set the maximum Levenshtein distance for similarity algorithms.
+4. Use the "Max Suggestions" slider to control the number of suggestions displayed.
+5. Click the "Check Spelling" button to check the spelling of the word.
+6. The application will display suggestions and statistics in the text area below.
 
-1. Ensure you have the dictionary file (e.g., `dictionary.txt`) in the project directory.
+## Dictionary
 
-2. Compile the Java files:
+The application comes with a default dictionary file named `dictionary.txt`. You can replace this file with your own custom dictionary if needed. Each line in the dictionary file should contain a valid word to be used for spell-checking.
 
-3. Run the Spell Checker GUI:
+## AVL Tree
 
-4. In the GUI, enter a word to check and set the maximum Levenshtein distance and maximum suggestions.
+This project efficiently utilizes an AVL Tree data structure to store the dictionary. AVL Trees are self-balancing binary search trees, ensuring that searches for words are performed in O(log N) time complexity, making the spell checker fast and efficient.
 
-5. Click the "Check Spelling" button to see suggestions and search time statistics.
+## License
 
-## Project Structure
+This project is licensed under the MIT License
 
-The project is organized as follows:
+## Acknowledgments
 
-- `SpellChecker.java`: The main spell checker class.
-- `SpellCheckerGUI.java`: The JavaFX-based graphical user interface.
-- `AVLTree.java`: The AVL Tree data structure implementation.
-- `styles.css`: CSS stylesheet for the GUI.
-- `dictionary.txt`: Sample dictionary file (you can replace it with your own).
-
-## Customization
-
-You can customize the spell checker by adding or modifying similarity algorithms in the `SpellChecker.java` file. Each similarity algorithm is implemented as a separate class and can be weighted differently for fine-tuning suggestions.
-
-```java
-public class CustomSimilarityAlgorithm implements WeightedStringSimilarityAlgorithm {
-    // Implement the similarity algorithm here
-}
+This project uses the Apache Commons Codec, Lang3, and Text libraries for string similarity calculations.
