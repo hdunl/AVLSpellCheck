@@ -38,7 +38,7 @@ To get started with the Spell Checker project, follow these steps:
 
 3. **Compile Java Files**: Compile the Java files in the project directory.
 
-4. **Run Spell Checker GUI**: Run the Spell Checker GUI by executing the following command:
+4. **Run Spell Checker GUI**: Run the Spell Checker GUI
 
 
 
