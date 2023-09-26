@@ -10,6 +10,7 @@ This is a Java-based spell-checker application that uses multiple similarity alg
 - Detailed statistics on dictionary population time and search complexity.
 - Utilizes an efficient AVL Tree data structure for dictionary storage.
 - Supports loading custom dictionaries.
+- Displays path taken by the program after each search
 
 ## Prerequisites
 
