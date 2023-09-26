@@ -4,15 +4,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * A JavaFX-based Spell Checker GUI application.
- */
 public class SpellCheckerGUI extends Application {
-
     private final SpellChecker spellChecker;
     private Slider maxDistanceSlider;
     private Slider maxSuggestionsSlider;
@@ -22,13 +20,12 @@ public class SpellCheckerGUI extends Application {
     private Label statsLabel;
     private long dictionaryPopulationTime;
 
-    /**
-     * Constructor for SpellCheckerGUI.
-     */
+    private Stage pathStage;
+    private ListView<String> pathListView;
+
     public SpellCheckerGUI() {
         spellChecker = new SpellChecker(5);
-        spellChecker.loadDictionary("dictionary.txt"); // Load dictionary
-
+        spellChecker.loadDictionary("dictionary.txt");
         dictionaryPopulationTime = 0;
     }
 
@@ -59,9 +56,9 @@ public class SpellCheckerGUI extends Application {
         suggestionsTextArea = new TextArea();
         suggestionsTextArea.setWrapText(true);
         suggestionsTextArea.setEditable(false);
-        suggestionsTextArea.setPrefHeight(300); // Increased height
+        suggestionsTextArea.setPrefHeight(300);
 
-        statsLabel = new Label(); // Label for displaying stats
+        statsLabel = new Label();
 
         gridPane.add(inputLabel, 0, 0);
         gridPane.add(inputWord, 1, 0);
@@ -74,12 +71,11 @@ public class SpellCheckerGUI extends Application {
         gridPane.add(checkButton, 0, 3);
         GridPane.setColumnSpan(suggestionsTextArea, 3);
         gridPane.add(suggestionsTextArea, 0, 4);
-        GridPane.setColumnSpan(statsLabel, 3); // Span statsLabel across three columns
+        GridPane.setColumnSpan(statsLabel, 3);
         gridPane.add(statsLabel, 0, 5);
 
         maxDistanceSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             int maxDistance = newValue.intValue();
-            spellChecker.setMaxDistance(maxDistance);
             maxDistanceValueLabel.setText(String.valueOf(maxDistance));
         });
 
@@ -88,10 +84,23 @@ public class SpellCheckerGUI extends Application {
             maxSuggestionsValueLabel.setText(String.valueOf(maxSuggestions));
         });
 
+        pathStage = new Stage();
+        pathStage.setTitle("Search Path");
+        pathStage.initStyle(StageStyle.UTILITY);
+        pathStage.setResizable(false);
+
+        pathListView = new ListView<>();
+        pathListView.setPrefSize(200, 300);
+        pathListView.setEditable(false);
+
+        VBox pathLayout = new VBox();
+        pathLayout.getChildren().addAll(pathListView);
+        Scene pathScene = new Scene(pathLayout, 200, 300);
+        pathStage.setScene(pathScene);
+
         checkButton.setOnAction(e -> {
             String wordToCheck = inputWord.getText();
 
-            // Check if the word is blank or contains numbers
             if (wordToCheck.isEmpty() || wordToCheck.matches(".*\\d.*")) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -104,11 +113,13 @@ public class SpellCheckerGUI extends Application {
                 }
 
                 alert.showAndWait();
-                return; // Exit the method
+                return;
             }
 
             int maxDistance = (int) maxDistanceSlider.getValue();
             int maxSuggestions = (int) maxSuggestionsSlider.getValue();
+
+            spellChecker.clearPath();
 
             long startTime = System.nanoTime();
             boolean isSpelledCorrectly = spellChecker.checkWord(wordToCheck);
@@ -134,10 +145,16 @@ public class SpellCheckerGUI extends Application {
             }
 
             suggestionsTextArea.setText(resultText + "\nSearch Time: " + decimalFormat.format(recentSearchTimeMillis) + "ms");
-            updateStats(); // Update stats with search time
+
+            pathListView.getItems().clear();
+            pathListView.getItems().addAll(spellChecker.path());
+
+            pathStage.show();
+
+            updateStats();
         });
 
-        Scene scene = new Scene(gridPane, 600, 500); // Increased scene height
+        Scene scene = new Scene(gridPane, 600, 500);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();

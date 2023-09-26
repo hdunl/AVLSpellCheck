@@ -1,3 +1,4 @@
+
 /**
  * An AVL Tree data structure implementation.
  * @param <T> the type of elements stored in the tree, must be Comparable.
@@ -39,7 +40,8 @@ class AVLTree<T extends Comparable<T>> {
      * @return the height of the node, or 0 if the node is null.
      */
     private int height(Node node) {
-        return (node == null) ? 0 : node.height;
+        if (node == null) return 0;
+        return node.height;
     }
 
     /**
@@ -48,7 +50,8 @@ class AVLTree<T extends Comparable<T>> {
      * @return the balance factor (difference in heights of left and right subtrees).
      */
     private int balanceFactor(Node node) {
-        return (node == null) ? 0 : height(node.left) - height(node.right);
+        if (node == null) return 0;
+        return height(node.left) - height(node.right);
     }
 
     /**

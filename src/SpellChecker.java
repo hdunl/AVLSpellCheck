@@ -8,57 +8,34 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.Soundex;
 
-/**
- * A spell checker that uses various similarity algorithms for word suggestions.
- */
-@SuppressWarnings({"CallToPrintStackTrace", "resource"})
 public class SpellChecker {
     private AVLTree<String> dictionary;
-    private final List<WeightedStringSimilarityAlgorithm> weightedSimilarityAlgorithms;
+    private final List<StringSimilarityAlgorithm> similarityAlgorithms;
     private final int nGramSize;
     private final Map<String, List<String>> nGramsMap;
+    protected List<String> path;
 
-    /**
-     * Creates a SpellChecker with an initial N-gram size.
-     *
-     * @param initialNGramSize The initial size of N-grams to use.
-     */
     public SpellChecker(int initialNGramSize) {
         dictionary = new AVLTree<>();
-        weightedSimilarityAlgorithms = new ArrayList<>();
-        weightedSimilarityAlgorithms.add(new LevenshteinDistanceAlgorithm());
-        weightedSimilarityAlgorithms.add(new MetaphoneAlgorithm());
-        weightedSimilarityAlgorithms.add(new SoundexAlgorithm());
-        weightedSimilarityAlgorithms.add(new JaroWinklerAlgorithm());
+        similarityAlgorithms = new ArrayList<>();
+        similarityAlgorithms.add(new LevenshteinDistanceAdapter());
+        similarityAlgorithms.add(new MetaphoneAlgorithm());
+        similarityAlgorithms.add(new SoundexAlgorithm());
+        similarityAlgorithms.add(new JaroWinklerAlgorithm());
         nGramsMap = new HashMap<>();
         nGramSize = initialNGramSize;
+        path = new ArrayList<>(); // Initialize the 'path' list
     }
 
-    /**
-     * Sets the maximum Levenshtein distance for similarity algorithms.
-     *
-     * @param maxDistance The maximum Levenshtein distance.
-     */
-    public void setMaxDistance(int maxDistance) {
-        for (WeightedStringSimilarityAlgorithm algorithm : weightedSimilarityAlgorithms) {
-            algorithm.setMaxDistance(maxDistance);
-        }
-    }
-
-    /**
-     * Loads a dictionary file and populates the spell checker's dictionary.
-     *
-     * @param dictionaryFilename The name of the dictionary file to load.
-     */
+    // Load the dictionary from a file
     public void loadDictionary(String dictionaryFilename) {
-        dictionary = new AVLTree<>(); // Clear the dictionary
+        dictionary = new AVLTree<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(dictionaryFilename))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim().toLowerCase();
-                // Update N-grams for each word in the dictionary
                 List<String> nGrams = generateCharacterNGrams(line, nGramSize);
-                nGramsMap.put(line, nGrams); // Store N-grams for this word
+                nGramsMap.put(line, nGrams);
                 dictionary.insert(line);
             }
         } catch (IOException e) {
@@ -66,23 +43,34 @@ public class SpellChecker {
         }
     }
 
-    /**
-     * Checks if a word is in the loaded dictionary.
-     *
-     * @param word The word to check.
-     * @return true if the word is in the dictionary, false otherwise.
-     */
+    // Check if a word is in the dictionary
     public boolean checkWord(String word) {
-        return dictionary.search(word.toLowerCase());
+        // Reset the path for each new word check
+        path.clear();
+        return searchWord(dictionary.getRoot(), word.toLowerCase());
     }
 
-    /**
-     * Suggests corrections for a misspelled word.
-     *
-     * @param word        The misspelled word to suggest corrections for.
-     * @param maxDistance The maximum Levenshtein distance for suggestions.
-     * @return A list of suggested corrections, sorted by similarity.
-     */
+    // Recursive method to search for a word in the dictionary
+    private boolean searchWord(AVLTree<String>.Node node, String word) {
+        if (node == null) {
+            return false;
+        }
+
+        String dictWord = node.data;
+        path.add(dictWord); // Add the current node to the search path
+
+        int cmp = word.compareTo(dictWord);
+
+        if (cmp < 0) {
+            return searchWord(node.left, word);
+        } else if (cmp > 0) {
+            return searchWord(node.right, word);
+        } else {
+            return true;
+        }
+    }
+
+    // Suggest corrections for a misspelled word
     public List<String> suggestCorrections(String word, int maxDistance) {
         Map<String, Double> suggestions = new ConcurrentHashMap<>();
 
@@ -97,12 +85,22 @@ public class SpellChecker {
                 .collect(Collectors.toList());
     }
 
+    // Clear the path
+    public void clearPath() {
+        path.clear();
+    }
+
+    // Get the search path
+    public List<String> path() {
+        return path;
+    }
+
+    // Traverse the dictionary in order and calculate word similarities
     private void traverseDictionaryInOrder(AVLTree<String>.Node node, String word, int maxDistance, Map<String, Double> suggestions) {
         if (node != null) {
-            traverseDictionaryInOrder(node.left, word, maxDistance, suggestions);
             String dictWord = node.data;
 
-            for (WeightedStringSimilarityAlgorithm algorithm : weightedSimilarityAlgorithms) {
+            for (StringSimilarityAlgorithm algorithm : similarityAlgorithms) {
                 double similarity = algorithm.calculateSimilarity(word.toLowerCase(), dictWord);
                 int levenshteinDistance = LevenshteinDistance.getDefaultInstance().apply(word.toLowerCase(), dictWord);
 
@@ -110,20 +108,30 @@ public class SpellChecker {
                 if (similarity >= similarityThreshold && levenshteinDistance <= maxDistance) {
                     suggestions.putIfAbsent(dictWord, 0.0);
 
-                    similarity *= algorithm.getWeight(); // Apply weight
+                    if (algorithm instanceof LevenshteinDistance) {
+                        similarity *= 0.8;
+                    } else if (algorithm instanceof MetaphoneAlgorithm) {
+                        similarity *= 0.5;
+                    } else if (algorithm instanceof SoundexAlgorithm) {
+                        similarity *= 0.7;
+                    } else if (algorithm instanceof JaroWinklerAlgorithm) {
+                        similarity *= 0.9;
+                    }
 
                     List<String> nGrams = nGramsMap.get(dictWord.toLowerCase());
-                    double nGramSimilarity = calculateNGramSimilarity(word.toLowerCase(), nGrams); // Pass nGramSize here
+                    double nGramSimilarity = calculateNGramSimilarity(word.toLowerCase(), nGrams);
                     similarity = (similarity + nGramSimilarity) / 2.0;
 
                     suggestions.put(dictWord, suggestions.get(dictWord) + similarity);
                 }
             }
 
+            traverseDictionaryInOrder(node.left, word, maxDistance, suggestions);
             traverseDictionaryInOrder(node.right, word, maxDistance, suggestions);
         }
     }
 
+    // Calculate n-gram similarity between two words
     private double calculateNGramSimilarity(String word, List<String> dictionaryNGrams) {
         List<String> wordNGrams = generateCharacterNGrams(word, this.nGramSize);
 
@@ -141,6 +149,7 @@ public class SpellChecker {
         return (double) intersection.size() / union.size();
     }
 
+    // Generate character n-grams for a word
     private List<String> generateCharacterNGrams(String word, int n) {
         List<String> nGrams = new ArrayList<>();
         for (int i = 0; i <= word.length() - n; i++) {
@@ -149,12 +158,11 @@ public class SpellChecker {
         return nGrams;
     }
 
-    public static class MetaphoneAlgorithm implements WeightedStringSimilarityAlgorithm {
-        private final double weight;
+    // Metaphone's similarity algorithm
+    public static class MetaphoneAlgorithm implements StringSimilarityAlgorithm {
         private final Metaphone metaphone;
 
         public MetaphoneAlgorithm() {
-            weight = 0.5; // Adjust the weight as needed
             metaphone = new Metaphone();
         }
 
@@ -168,20 +176,15 @@ public class SpellChecker {
 
         @Override
         public void setMaxDistance(int maxDistance) {
-        }
-
-        @Override
-        public double getWeight() {
-            return weight;
+            // Not implemented for this algorithm
         }
     }
 
-    public static class SoundexAlgorithm implements WeightedStringSimilarityAlgorithm {
-        private final double weight;
+    // Soundex similarity algorithm
+    public static class SoundexAlgorithm implements StringSimilarityAlgorithm {
         private final Soundex soundex;
 
         public SoundexAlgorithm() {
-            weight = 0.7; // Adjust the weight as needed
             soundex = new Soundex();
         }
 
@@ -195,21 +198,12 @@ public class SpellChecker {
 
         @Override
         public void setMaxDistance(int maxDistance) {
-        }
-
-        @Override
-        public double getWeight() {
-            return weight;
+            // Not implemented for this algorithm
         }
     }
 
-    public static class JaroWinklerAlgorithm implements WeightedStringSimilarityAlgorithm {
-        private final double weight;
-
-        public JaroWinklerAlgorithm() {
-            weight = 0.9; // Adjust the weight as needed
-        }
-
+    // Jaro-Winkler similarity algorithm
+    public static class JaroWinklerAlgorithm implements StringSimilarityAlgorithm {
         @Override
         public double calculateSimilarity(String s1, String s2) {
             JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
@@ -218,23 +212,12 @@ public class SpellChecker {
 
         @Override
         public void setMaxDistance(int maxDistance) {
-            // Not used for JaroWinkler
-        }
-
-        @Override
-        public double getWeight() {
-            return weight;
+            // Not implemented for this algorithm
         }
     }
 
     // Adapter for LevenshteinDistance
-    public static class LevenshteinDistanceAlgorithm implements WeightedStringSimilarityAlgorithm {
-        private final double weight;
-
-        public LevenshteinDistanceAlgorithm() {
-            weight = 0.8; // Adjust the weight as needed
-        }
-
+    public static class LevenshteinDistanceAdapter implements StringSimilarityAlgorithm {
         @Override
         public double calculateSimilarity(String s1, String s2) {
             LevenshteinDistance distance = LevenshteinDistance.getDefaultInstance();
@@ -245,15 +228,7 @@ public class SpellChecker {
 
         @Override
         public void setMaxDistance(int maxDistance) {
+            // Not implemented for this algorithm
         }
-
-        @Override
-        public double getWeight() {
-            return weight;
-        }
-    }
-
-    public interface WeightedStringSimilarityAlgorithm extends StringSimilarityAlgorithm {
-        double getWeight();
     }
 }
