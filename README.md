@@ -2,6 +2,12 @@
 
 This is a Java-based spell-checker application that uses multiple similarity algorithms to suggest corrections for misspelled words. It provides an easy-to-use graphical user interface (GUI) for checking the spelling of words.
 
+## Write-ups for each class
+- [AVLTree.java](explanations/AVLTree.md)
+- [Spellchecker.java](explanations/Spellchecker.md)
+- [SpellcheckerGUI.java](explanations/SpellcheckerGUI.md)
+- [String Similarity Algorithm](explanations/StringSimilarityAlgorithm.md)
+
 ## Features
 
 - Check the spelling of words using various similarity algorithms.
