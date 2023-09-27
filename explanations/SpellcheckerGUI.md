@@ -76,11 +76,3 @@ A secondary stage (`pathStage`) is created to display the search path taken by t
 
 - The `updateStats` method is responsible for updating the statistics displayed in the `statsLabel`. This includes the time taken for dictionary population and information about time complexity.
 
-## Conclusion
-
-The `SpellCheckerGUI` class facilitates user interaction, manages the spell-checking process, and provides a user-friendly interface for utilizing the spell-checker's functionality.
-
-## Entry Point
-
-The `main` method serves as the entry point for the GUI application, invoking the `launch` method to start the JavaFX application.
-
