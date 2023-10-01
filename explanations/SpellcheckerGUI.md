@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `SpellCheckerGUI` class is the graphical user interface (GUI) component of a spell-checking application developed using JavaFX. This in-depth explanation delves into the intricate details of this class, which plays a pivotal role in the larger spell-checking project.
+The `SpellCheckerGUI` class is the graphical user interface (GUI) component of the spell-checking application developed using JavaFX. This in-depth explanation delves into the intricate details of this class, which plays a pivotal role in the larger spell-checking project.
 
 ## Initialization and Dictionary Population
 
