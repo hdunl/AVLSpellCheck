@@ -5,7 +5,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +17,6 @@ public class SpellCheckerGUI extends Application {
     private Label maxDistanceValueLabel;
     private Label maxSuggestionsValueLabel;
     private Label statsLabel;
-    private long dictionaryPopulationTime;
 
     private Stage pathStage;
     private ListView<String> pathListView;
@@ -26,7 +24,6 @@ public class SpellCheckerGUI extends Application {
     public SpellCheckerGUI() {
         spellChecker = new SpellChecker(5);
         spellChecker.loadDictionary("dictionary.txt");
-        dictionaryPopulationTime = 0;
     }
 
     @Override
@@ -57,6 +54,9 @@ public class SpellCheckerGUI extends Application {
         suggestionsTextArea.setWrapText(true);
         suggestionsTextArea.setEditable(false);
         suggestionsTextArea.setPrefHeight(300);
+
+        CheckBox showPathCheckBox = new CheckBox("Show Search Path");
+        gridPane.add(showPathCheckBox, 0, 6);
 
         statsLabel = new Label();
 
@@ -101,6 +101,17 @@ public class SpellCheckerGUI extends Application {
         checkButton.setOnAction(e -> {
             String wordToCheck = inputWord.getText();
 
+            // Clear the previous items from the path list view
+            pathListView.getItems().clear();
+
+            // Only show the search path dialog if the checkbox is selected
+            if (showPathCheckBox.isSelected()) {
+                pathListView.getItems().addAll(spellChecker.path());
+                pathStage.show(); // Show the dialog only if the checkbox is selected
+            } else {
+                pathStage.hide(); // Optionally hide the dialog if it's not selected
+            }
+
             if (wordToCheck.isEmpty() || wordToCheck.matches(".*\\d.*")) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -111,6 +122,7 @@ public class SpellCheckerGUI extends Application {
                 } else {
                     alert.setContentText("Please enter a valid word without numbers.");
                 }
+
 
                 alert.showAndWait();
                 return;
@@ -145,12 +157,6 @@ public class SpellCheckerGUI extends Application {
             }
 
             suggestionsTextArea.setText(resultText + "\nSearch Time: " + decimalFormat.format(recentSearchTimeMillis) + "ms");
-
-            pathListView.getItems().clear();
-            pathListView.getItems().addAll(spellChecker.path());
-
-            pathStage.show();
-
             updateStats();
         });
 
@@ -162,12 +168,8 @@ public class SpellCheckerGUI extends Application {
 
     private void updateStats() {
         System.out.println("Updating stats...");
-        long startTime = System.currentTimeMillis();
         spellChecker.loadDictionary("dictionary.txt");
-        dictionaryPopulationTime = System.currentTimeMillis() - startTime;
-
-        String statsText = "Dictionary Population Time: " + dictionaryPopulationTime + " ms\n";
-        statsText += "Dictionary Population Time Complexity: O(N) - Linear\n";
+        String statsText = "Dictionary Population Time Complexity: O(N) - Linear\n";
         statsText += "Average Search Time Complexity: O(log N) - Logarithmic\n";
 
         statsLabel.setText(statsText);
