@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class SpellCheckerGUI extends Application {
@@ -22,7 +23,7 @@ public class SpellCheckerGUI extends Application {
     private ListView<String> pathListView;
 
     public SpellCheckerGUI() {
-        spellChecker = new SpellChecker(5);
+        spellChecker = new SpellChecker(2);
         spellChecker.loadDictionary("dictionary.txt");
     }
 
@@ -133,30 +134,37 @@ public class SpellCheckerGUI extends Application {
 
             spellChecker.clearPath();
 
+            // Start measuring time
             long startTime = System.nanoTime();
+
             boolean isSpelledCorrectly = spellChecker.checkWord(wordToCheck);
+            List<Map.Entry<String, Double>> suggestions = spellChecker.suggestCorrections(wordToCheck, maxDistance, maxSuggestions);
+
+            // Stop measuring time
             long endTime = System.nanoTime();
+            double searchTimeMillis = (double) (endTime - startTime) / 1_000_000;
 
-            double recentSearchTimeMillis = (double) (endTime - startTime) / 1_000_000;
-            DecimalFormat decimalFormat = new DecimalFormat("0.000");
+            // Formatting the output
+            DecimalFormat df = new DecimalFormat("#.##");
+            StringBuilder resultText = new StringBuilder();
 
-            String resultText;
             if (isSpelledCorrectly) {
-                resultText = wordToCheck + " is spelled correctly.";
+                resultText.append(wordToCheck).append(" is spelled correctly.\n");
             } else {
-                List<String> suggestions = spellChecker.suggestCorrections(wordToCheck, maxDistance);
-                StringBuilder suggestionsText = new StringBuilder();
-                for (int i = 0; i < Math.min(maxSuggestions, suggestions.size()); i++) {
-                    String suggestion = suggestions.get(i);
-                    if (i > 0) {
-                        suggestionsText.append('\n');
-                    }
-                    suggestionsText.append(suggestion);
+                resultText.append(wordToCheck).append(" is spelled incorrectly. Did you mean:\n");
+                for (Map.Entry<String, Double> suggestion : suggestions) {
+                    resultText.append(suggestion.getKey())
+                            .append(" (Score: ")
+                            .append(df.format(suggestion.getValue()))
+                            .append(")\n");
                 }
-                resultText = wordToCheck + " is spelled incorrectly. Did you mean:\n" + suggestionsText;
             }
 
-            suggestionsTextArea.setText(resultText + "\nSearch Time: " + decimalFormat.format(recentSearchTimeMillis) + "ms");
+            // Append the search time to the result text
+            resultText.append("\nSearch Time: ").append(df.format(searchTimeMillis)).append(" ms");
+
+            // Set the text to the suggestions text area
+            suggestionsTextArea.setText(resultText.toString());
             updateStats();
         });
 
