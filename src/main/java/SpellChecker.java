@@ -109,7 +109,7 @@ public class SpellChecker {
                 double similarityThreshold = 0.7;
                 if (similarity >= similarityThreshold) {
                     double weight = getWeightForAlgorithm(algorithm);
-                    totalWeightedScore += similarity * weight;
+                    totalWeightedScore += similarity * (weight);
                     totalWeight += weight;
                 }
             }
@@ -137,7 +137,7 @@ public class SpellChecker {
         } else if (algorithm instanceof MetaphoneAlgorithm) {
             return 0.7;
         } else if (algorithm instanceof SoundexAlgorithm) {
-            return 0.4;
+            return 0.6;
         } else if (algorithm instanceof JaroWinklerAlgorithm) {
             return 0.9;
         } else {
