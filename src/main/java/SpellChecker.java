@@ -71,12 +71,12 @@ public class SpellChecker {
     }
 
     // Suggest corrections for a misspelled word
-    public List<Map.Entry<String, Double>> suggestCorrections(String word, int maxDistance, long maxSuggestions) {
+    public List<Map.Entry<String, Double>> suggestCorrections(String word, long maxSuggestions) {
         Map<String, Double> suggestions = new ConcurrentHashMap<>();
 
         ForkJoinPool pool = new ForkJoinPool();
         pool.submit(() ->
-                traverseDictionaryInOrder(dictionary.getRoot(), word, maxDistance, suggestions)
+                traverseDictionaryInOrder(dictionary.getRoot(), word, suggestions)
         ).join();
 
         return suggestions.entrySet().stream()
@@ -96,7 +96,7 @@ public class SpellChecker {
     }
 
     // Traverse the dictionary in order and calculate word similarities
-    private void traverseDictionaryInOrder(AVLTree<String>.Node node, String word, int maxDistance, Map<String, Double> suggestions) {
+    private void traverseDictionaryInOrder(AVLTree<String>.Node node, String word, Map<String, Double> suggestions) {
         if (node != null) {
             String dictWord = node.data;
 
@@ -125,8 +125,8 @@ public class SpellChecker {
                 suggestions.put(dictWord, Math.max(suggestions.getOrDefault(dictWord, 0.0), normalizedScore));
             }
 
-            traverseDictionaryInOrder(node.left, word, maxDistance, suggestions);
-            traverseDictionaryInOrder(node.right, word, maxDistance, suggestions);
+            traverseDictionaryInOrder(node.left, word, suggestions);
+            traverseDictionaryInOrder(node.right, word, suggestions);
         }
     }
 
@@ -188,10 +188,7 @@ public class SpellChecker {
             return metaphone1.equals(metaphone2) ? 1.0 : 0.0;
         }
 
-        @Override
-        public void setMaxDistance(int maxDistance) {
-            // Not implemented for this algorithm
-        }
+
     }
 
     // Soundex similarity algorithm
@@ -210,10 +207,7 @@ public class SpellChecker {
             return soundex1.equals(soundex2) ? 1.0 : 0.0;
         }
 
-        @Override
-        public void setMaxDistance(int maxDistance) {
-            // Not implemented for this algorithm
-        }
+
     }
 
     // Jaro-Winkler similarity algorithm
@@ -222,11 +216,6 @@ public class SpellChecker {
         public double calculateSimilarity(String s1, String s2) {
             JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
             return similarity.apply(s1, s2);
-        }
-
-        @Override
-        public void setMaxDistance(int maxDistance) {
-            // Not implemented for this algorithm
         }
     }
 
@@ -241,8 +230,4 @@ public class SpellChecker {
             return maxLength > 0 ? 1.0 - ((double) distance / maxLength) : 1.0;
         }
 
-        @Override
-        public void setMaxDistance(int maxDistance) {
-            // This method can be used to set a maximum threshold for the distance, if needed
-        }
 }}
