@@ -1,3 +1,5 @@
+package spellchecker;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,6 +9,7 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.Soundex;
 import com.cedarsoftware.util.StringUtilities;
+import spellchecker.AVLTree;
 
 public class SpellChecker {
     private AVLTree<String> dictionary;

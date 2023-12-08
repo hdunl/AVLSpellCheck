@@ -1,3 +1,4 @@
+package spellchecker;
 
 /**
  * An AVL Tree data structure implementation.

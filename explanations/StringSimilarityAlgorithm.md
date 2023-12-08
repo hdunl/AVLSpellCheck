@@ -1,6 +1,6 @@
-## StringSimilarityAlgorithm Interface
+## spellchecker.StringSimilarityAlgorithm Interface
 
-The `StringSimilarityAlgorithm` is an interface in Java that defines a contract for classes responsible for calculating the similarity between two strings. It provides a common structure for different algorithms to compute the similarity between strings.
+The `spellchecker.StringSimilarityAlgorithm` is an interface in Java that defines a contract for classes responsible for calculating the similarity between two strings. It provides a common structure for different algorithms to compute the similarity between strings.
 
 ### Methods
 
@@ -8,4 +8,4 @@ The `StringSimilarityAlgorithm` is an interface in Java that defines a contract 
 
 2. `setMaxDistance(int maxDistance)`: This method allows you to set a maximum distance or threshold for considering strings as similar. It can be useful when you want to filter out strings that are too dissimilar to each other. For example, if `maxDistance` is set to 2, the algorithm may only consider strings as similar if their similarity score is below this threshold.
 
-By defining this interface, you can create multiple classes that implement the `StringSimilarityAlgorithm` interface with different similarity calculation algorithms. This provides flexibility in choosing the appropriate algorithm based on your specific use case, such as spell checking, autocomplete, or similarity-based search. Each implementation of the interface would provide its own logic for calculating string similarity while adhering to the defined method signatures.
+By defining this interface, you can create multiple classes that implement the `spellchecker.StringSimilarityAlgorithm` interface with different similarity calculation algorithms. This provides flexibility in choosing the appropriate algorithm based on your specific use case, such as spell checking, autocomplete, or similarity-based search. Each implementation of the interface would provide its own logic for calculating string similarity while adhering to the defined method signatures.

@@ -1,10 +1,10 @@
-# SpellChecker Class - Detailed Operational Workflow
+# spellchecker.SpellChecker Class - Detailed Operational Workflow
 
 ## Management of the Dictionary
 
-Upon the instantiation of a `SpellChecker` object, several crucial components are initialized:
+Upon the instantiation of a `spellchecker.SpellChecker` object, several crucial components are initialized:
 
-- An AVL tree (`AVLTree<String>`), referred to as `dictionary`, is established to house the dictionary words efficiently.
+- An AVL tree (`spellchecker.AVLTree<String>`), referred to as `dictionary`, is established to house the dictionary words efficiently.
 - A collection of string similarity algorithms (`similarityAlgorithms`) is introduced, including Levenshtein Distance, Metaphone, Soundex, and Jaro-Winkler.
 - A map (`nGramsMap`) is created to record the character n-grams of dictionary words.
 - The initial size of n-grams (`nGramSize`) is configured based on user preferences, with a default value of 5.

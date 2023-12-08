@@ -1,8 +1,8 @@
-# SpellCheckerGUI Class - Comprehensive Workflow Explanation
+# spellchecker.SpellCheckerGUI Class - Comprehensive Workflow Explanation
 
 ## Introduction
 
-The `SpellCheckerGUI` class is the graphical user interface (GUI) component of the spell-checking application developed using JavaFX. This in-depth explanation delves into the intricate details of this class, which plays a pivotal role in the larger spell-checking project.
+The `spellchecker.SpellCheckerGUI` class is the graphical user interface (GUI) component of the spell-checking application developed using JavaFX. This in-depth explanation delves into the intricate details of this class, which plays a pivotal role in the larger spell-checking project.
 
 ## Initialization and Dictionary Population
 
@@ -10,7 +10,7 @@ The `SpellCheckerGUI` class is the graphical user interface (GUI) component of t
 
 The journey begins with the class constructor. Key components are initialized here:
 
-- **SpellChecker Instance**: An instance of the `SpellChecker` class is created. The initial n-gram size is set to 5. This `SpellChecker` object serves as the core engine for spell-checking and manages the dictionary.
+- **spellchecker.SpellChecker Instance**: An instance of the `spellchecker.SpellChecker` class is created. The initial n-gram size is set to 5. This `spellchecker.SpellChecker` object serves as the core engine for spell-checking and manages the dictionary.
 
 - **User Interface Elements**: Various user interface elements are set up, including:
   - **Sliders and Labels**: Sliders (`maxDistanceSlider` and `maxSuggestionsSlider`) are introduced to control spell-checking parameters. Corresponding labels (`maxDistanceValueLabel` and `maxSuggestionsValueLabel`) display the current slider values.

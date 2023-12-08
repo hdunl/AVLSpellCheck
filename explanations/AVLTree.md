@@ -1,8 +1,8 @@
-# AVLTree Class - In-Depth Explanation
+# spellchecker.AVLTree Class - In-Depth Explanation
 
 ## Introduction
 
-The `AVLTree` class is an implementation of the AVL Tree data structure, known for its self-balancing property. In this in-depth explanation, we'll delve deeper into the inner workings of this class, including rotations, heights, and balancing mechanisms.
+The `spellchecker.AVLTree` class is an implementation of the AVL Tree data structure, known for its self-balancing property. In this in-depth explanation, we'll delve deeper into the inner workings of this class, including rotations, heights, and balancing mechanisms.
 
 ## Class Structure
 
@@ -89,7 +89,7 @@ The `Node` class represents a node in the AVL Tree. It encompasses the following
 
 ## Conclusion
 
-The `AVLTree` class is a sophisticated implementation of an AVL Tree data structure. It manages tree balance through precise height calculations, balance factor assessments, and rotations. The insertion and search operations maintain the tree's integrity while ensuring efficient and balanced data storage.
+The `spellchecker.AVLTree` class is a sophisticated implementation of an AVL Tree data structure. It manages tree balance through precise height calculations, balance factor assessments, and rotations. The insertion and search operations maintain the tree's integrity while ensuring efficient and balanced data storage.
 
 ## Type Constraint
 

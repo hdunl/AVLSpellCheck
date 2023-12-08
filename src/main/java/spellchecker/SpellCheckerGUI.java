@@ -1,3 +1,5 @@
+package spellchecker;
+
 import com.google.gson.JsonArray;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -17,6 +19,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import javafx.scene.control.Button;
 import org.asynchttpclient.*;
+import spellchecker.SpellChecker;
 
 
 public class SpellCheckerGUI extends Application {
@@ -165,7 +168,7 @@ public class SpellCheckerGUI extends Application {
         }});
 
         Scene scene = new Scene(gridPane, 600, 500);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles.css")).toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
