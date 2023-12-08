@@ -30,7 +30,7 @@ public class SpellCheckerGUI extends Application {
 
     public SpellCheckerGUI() {
         spellChecker = new SpellChecker(2);
-        spellChecker.loadDictionary("dictionary.txt");
+        spellChecker.loadDictionary("src/main/resources/dictionary.txt");
     }
 
     @Override
@@ -172,7 +172,7 @@ public class SpellCheckerGUI extends Application {
 
     private void updateStats() {
         System.out.println("Updating stats...");
-        spellChecker.loadDictionary("dictionary.txt");
+        spellChecker.loadDictionary("src/main/resources/dictionary.txt");
     }
 
     private String checkUsingGingerAPI(String text) {
