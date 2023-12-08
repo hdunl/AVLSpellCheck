@@ -24,6 +24,17 @@
     -fx-pref-width: 150px; /* Button width */
     -fx-pref-height: 40px; /* Button height */
 }
+.small-info-button {
+    -fx-font-size: 10px;
+    -fx-padding: 2px 5px;
+    -fx-background-radius: 5px;
+    -fx-min-width: 50px;
+    -fx-min-height: 20px;
+    -fx-max-width: 50px;
+    -fx-max-height: 20px;
+}
+
+
 
 /* Style the TextArea */
 .text-area {

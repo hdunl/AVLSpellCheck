@@ -1,3 +1,4 @@
+import com.google.gson.JsonArray;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -5,11 +6,17 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import javafx.scene.control.Button;
+import org.asynchttpclient.*;
 
 
 public class SpellCheckerGUI extends Application {
@@ -17,8 +24,6 @@ public class SpellCheckerGUI extends Application {
     private Slider maxSuggestionsSlider;
     private TextArea suggestionsTextArea;
     private Label maxSuggestionsValueLabel;
-    private Label statsLabel;
-
     private Stage pathStage;
     private ListView<String> pathListView;
 
@@ -30,7 +35,7 @@ public class SpellCheckerGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Spell Checker");
+        primaryStage.setTitle("AVSpell");
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(10);
@@ -60,12 +65,21 @@ public class SpellCheckerGUI extends Application {
         layoutGrid.setPadding(new Insets(20));
 
 
-// Add the GridPane to your main layout (adjust the row and column indices accordingly)
-        CheckBox showPathCheckBox = new CheckBox("Show Search Path");
-        gridPane.add(showPathCheckBox, 0, 6); // Adjust the row and column indices as needed
-        gridPane.add(layoutGrid, 0, 7); // Adjust the row and column indices as needed
 
-        statsLabel = new Label();
+        CheckBox showPathCheckBox = new CheckBox("Show Search Path");
+        gridPane.add(showPathCheckBox, 0, 5);
+        gridPane.add(layoutGrid, 0, 7);
+        CheckBox aiToggle = new CheckBox("Use AI API for Spell Checking");
+        gridPane.add(aiToggle, 0, 6);
+
+        Button aiInfoButton = new Button("Info");
+        aiInfoButton.getStyleClass().add("small-info-button");
+        gridPane.add(aiInfoButton, 1, 6);
+
+
+
+
+        Label statsLabel = new Label();
 
         gridPane.add(inputLabel, 0, 0);
         gridPane.add(inputWord, 1, 0);
@@ -95,9 +109,25 @@ public class SpellCheckerGUI extends Application {
         Scene pathScene = new Scene(pathLayout, 200, 300);
         pathStage.setScene(pathScene);
 
+        aiInfoButton.setOnAction(e -> {
+            Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+            infoAlert.setTitle("Ginger API Information");
+            infoAlert.setHeaderText("Ginger Spell and Grammar Checker API");
+            infoAlert.setContentText("The Ginger API provides advanced spell checking and grammar correction. " +
+                    "For more information, visit: https://rapidapi.com/ginger-software-ginger-software-default/api/ginger4");
+
+            infoAlert.showAndWait();
+        });
+
         // Button event handler
         checkButton.setOnAction(e -> {
             String wordToCheck = inputWord.getText().trim();
+            if (aiToggle.isSelected()) {
+                // Use Ginger API
+                String resultText = checkUsingGingerAPI(wordToCheck);
+                suggestionsTextArea.setText(resultText);
+            }
+            else {
 
             pathListView.getItems().clear();
             if (showPathCheckBox.isSelected()) {
@@ -132,7 +162,7 @@ public class SpellCheckerGUI extends Application {
 
             suggestionsTextArea.setText(resultText);
             updateStats();
-        });
+        }});
 
         Scene scene = new Scene(gridPane, 600, 500);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm());
@@ -143,11 +173,60 @@ public class SpellCheckerGUI extends Application {
     private void updateStats() {
         System.out.println("Updating stats...");
         spellChecker.loadDictionary("dictionary.txt");
-        String statsText = "Dictionary Population Time Complexity: O(N) - Linear\n";
-        statsText += "Average Search Time Complexity: O(log N) - Logarithmic\n";
-
-        statsLabel.setText(statsText);
     }
+
+    private String checkUsingGingerAPI(String text) {
+        AsyncHttpClient client = new DefaultAsyncHttpClient();
+        try {
+            CompletableFuture<Response> futureResponse = client.prepare("POST", "https://ginger4.p.rapidapi.com/correction?lang=US&generateRecommendations=false&flagInformalLanguage=true")
+                    .setHeader("content-type", "text/plain")
+                    .setHeader("X-RapidAPI-Key", "16fbc9e08emsh71b08b0f258851fp150171jsnecf065972717")
+                    .setBody(text)
+                    .execute()
+                    .toCompletableFuture();
+
+            Response response = futureResponse.join();
+            return parseGingerResponse(response.getResponseBody());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error: " + e.getMessage();
+        } finally {
+            try {
+                client.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private String parseGingerResponse(String jsonResponse) {
+        StringBuilder result = new StringBuilder();
+        JsonObject jobject = JsonParser.parseString(jsonResponse).getAsJsonObject();
+        JsonObject gingerResult = jobject.getAsJsonObject("GingerTheDocumentResult");
+
+        if (gingerResult != null) {
+            JsonArray corrections = gingerResult.getAsJsonArray("Corrections");
+            if (corrections != null) {
+                for (JsonElement correctionElement : corrections) {
+                    JsonObject correction = correctionElement.getAsJsonObject();
+                    JsonArray suggestions = correction.getAsJsonArray("Suggestions");
+                    if (suggestions != null && !suggestions.isEmpty()) {
+                        JsonObject firstSuggestion = suggestions.get(0).getAsJsonObject();
+                        String suggestionText = firstSuggestion.get("Text").getAsString();
+                        result.append(suggestionText).append("\n");
+                    }
+                }
+            } else {
+                result.append("No corrections found.");
+            }
+        } else {
+            result.append("Invalid response format.");
+        }
+
+        return result.toString();
+    }
+
+
 
 
 

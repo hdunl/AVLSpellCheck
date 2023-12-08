@@ -24,7 +24,7 @@ public class SpellChecker {
         similarityAlgorithms.add(new JaroWinklerAlgorithm());
         nGramsMap = new HashMap<>();
         nGramSize = initialNGramSize;
-        path = new ArrayList<>(); // Initialize the 'path' list
+        path = new ArrayList<>();
     }
 
     // Load the dictionary from a file

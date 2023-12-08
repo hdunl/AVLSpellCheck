@@ -149,29 +149,4 @@ class AVLTree<T extends Comparable<T>> {
         return balance(node);
     }
 
-    /**
-     * Search for an element in the AVL Tree.
-     * @param data the element to search for.
-     * @return true if the element is found, false otherwise.
-     */
-    public boolean search(T data) {
-        return search(root, data);
-    }
-
-    /**
-     * Recursive helper method to search for an element in the AVL Tree.
-     * @param node the current node being considered.
-     * @param data the element to search for.
-     * @return true if the element is found, false otherwise.
-     */
-    private boolean search(Node node, T data) {
-        if (node == null) return false;
-
-        int cmp = data.compareTo(node.data);
-
-        if (cmp == 0) return true;
-        else if (cmp < 0) return search(node.left, data);
-        else return search(node.right, data);
-    }
-
 }
