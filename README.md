@@ -1,3 +1,5 @@
+## readme is outdated yet still relevant, may re-write one day
+
 # Spell Checker with Various Similarity Algorithms
 
 This is a Java-based spell-checker application that uses multiple similarity algorithms to suggest corrections for misspelled words. It provides an easy-to-use graphical user interface (GUI) for checking the spelling of words.
